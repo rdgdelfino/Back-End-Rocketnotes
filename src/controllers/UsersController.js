@@ -3,7 +3,6 @@ const { hash, compare } = require("bcryptjs");
 const AppError = require("../utils/AppError");
 
 const sqliteConnection = require("../database/sqlite");
-const { response } = require("express");
 
 class UsersController {
   async create(req, res) {
@@ -30,10 +29,10 @@ class UsersController {
 
   async update(req, res) {
     const { name, email, password, old_password } = req.body;
-    const { id } = req.params;
-
+    const user_id = req.user.id
+    // const { id } = req.params;
     const database = await sqliteConnection();
-    const user = await database.get("SELECT * FROM users WHERE id=(?)", [id]);
+    const user = await database.get("SELECT * FROM users WHERE id=(?)", [user_id]);
 
     if (!user) {
       throw new AppError("Usuário não encontrado");
@@ -73,7 +72,7 @@ class UsersController {
     password = ?,
     updated_at = DATETIME('now')
     WHERE id = ?`,
-      [user.name, user.email, user.password, id]
+      [user.name, user.email, user.password, user_id]
     );
 
     return res.status(200).json();
